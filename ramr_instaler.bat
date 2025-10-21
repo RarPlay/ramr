@@ -11,7 +11,8 @@ echo ================================
 echo.
 
 :: Проверка прав администратора
-fltmc >nul 2>&1 || (
+fltmc >nul 2>&1
+if not %errorLevel% == 0 (
     echo [X] Требуются права администратора
     echo.
     echo Запустите этот файл от имени администратора:
@@ -28,7 +29,7 @@ echo.
 :CHECK_GCC
 echo [1/6] Поиск компилятора GCC...
 where gcc >nul 2>&1
-if %errorLevel% neq  (
+if not %errorLevel% == 0 (
     echo [X] GCC не найден в системе!
     echo.
     echo Установите MinGW:
@@ -60,7 +61,7 @@ echo [3/6] Создание папки установки...
 set "RAMR_DIR=C:\Program Files\RAMR"
 if not exist "%RAMR_DIR%" (
     mkdir "%RAMR_DIR%"
-    if %errorLevel% neq  (
+    if not %errorLevel% == 0 (
         set "RAMR_DIR=C:\RAMR"
         mkdir "%RAMR_DIR%"
     )
@@ -80,15 +81,16 @@ echo.
 
 :UPDATE_PATH
 echo [5/6] Обновление системного PATH...
-for /f "skip=2 tokens=1,2*" %%A in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path 2^>nul') do (
+set "CURRENT_PATH="
+for /f "tokens=1,2*" %%A in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path 2^>nul') do (
     if /i "%%A"=="Path" (
         set "CURRENT_PATH=%%C"
     )
 )
 
-echo %CURRENT_PATH% | find /i "%RAMR_DIR%" >nul
-if %errorLevel% neq  (
-    set "NEW_PATH=%CURRENT_PATH%;%RAMR_DIR%"
+echo !CURRENT_PATH! | find /i "%RAMR_DIR%" >nul
+if not !errorLevel! == 0 (
+    set "NEW_PATH=!CURRENT_PATH!;%RAMR_DIR%"
     setx PATH "!NEW_PATH!" /M >nul
     echo [✓] PATH обновлен
 ) else (
