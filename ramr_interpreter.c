@@ -1,4 +1,4 @@
-// ramr.c — RAMR 0.2.1 (с таймерами и GUI Win32)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
